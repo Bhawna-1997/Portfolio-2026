@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayZapp UPI — Bhawna Nagpal</title>
+  <meta name="description" content="Driving 79% growth in Wallet-on-UPI adoption at PayZapp by HDFC Bank." />
+
+  <!-- Theme (must run before paint to avoid a flash) -->
+  <script src="../theme.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../style.css" />
+
+  <style>
+    /* ─── Page-level overrides ─── */
+    html { scroll-behavior: auto; } /* prevents conflict with GSAP ScrollTrigger */
+    body { background: var(--bg); }
+
+
+    /* ─── Tokens ─── */
+    :root {
+      --pz-bg:      #141414;
+      --pz-text:    #e8e8e8;
+      --pz-muted:   #bebebe;
+      --pz-sub:     rgba(232,232,232,0.6);
+      --pz-rule:    rgba(232,232,232,0.1);
+      --pz-ph:      #f1f1f1;       /* placeholder boxes */
+      --pz-cover:   #d2d2d2;       /* hero cover */
+      --pz-green:   #3ed06a;
+      --pz-red:     #f27679;
+      --pz-strong:  #ffffff;       /* flow labels */
+      --pz-reject:  #ff6060;
+      --pz-chosen:  #28af61;
+    }
+
+    :root[data-theme="light"] {
+      --pz-bg:      #f4f2ee;
+      --pz-text:    #1b1a17;
+      --pz-muted:   #4a463f;
+      --pz-sub:     rgba(27, 26, 23, 0.6);
+      --pz-rule:    rgba(27, 26, 23, 0.12);
+      --pz-ph:      #ffffff;
+      --pz-cover:   #e6e2da;
+      --pz-green:   #1f9d52;
+      --pz-red:     #d8434a;
+      --pz-strong:  #100f0d;
+      --pz-reject:  #cf3b41;
+      --pz-chosen:  #1c8a4c;
+    }
+
+    /* ─── Layout ─── */
+    .pz {
+      position: relative;
+      z-index: 1001;
+      color: var(--pz-text);
+      font-family: 'Inter', system-ui, sans-serif;
+      padding-bottom: 55vh; /* scroll space to fully reveal the fixed next project */
+    }
+
+    .pz-wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 clamp(24px, 5vw, 80px);
+    }
+
+    /* One rhythm for every content section: adjacent sections each contribute
+       44px, so the gap between any two is a consistent 88px. */
+    .pz-section { padding: 44px 0; }
+    .pz-section--sm { padding: 32px 0; }
+
+
+    /* ─── Hero pin + content panel ─── */
+    /* .pz-story scopes the sticky so the hero releases before Next Project */
+    .pz-story { position: relative; z-index: 1; }
+
+    .pz-hero-pin {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .pz-hero-pin .pz-wrap { height: 100%; }
+
+    .pz-panel {
+      position: relative;
+      z-index: 1;
+      background: var(--pz-bg);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .pz-bottom-pin {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 0; /* behind main.pz (z-index:1) while panel covers it; revealed through panel fade */
+      /* Held back until the panel covers the viewport. This is fixed and sits
+         behind main.pz, which is transparent across the hero — so unguarded,
+         its "Next project" and footer text read straight through the hero
+         video at the top of the page. Painting the hero opaque would hide the
+         leak but also the ambient floor grid, which both sections are meant to
+         share; gating the footer keeps the two backgrounds identical. */
+      visibility: hidden;
+    }
+    /* Set once the panel's top hits the viewport top — the panel is opaque
+       across the full screen by then, so the switch can't be seen. */
+    .pz-bottom-pin.is-live { visibility: visible; }
+
+    /* ─── Hero ─── */
+    .pz-hero {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-top: calc(var(--nav-height) + 28px);
+      padding-bottom: 32px;
+      text-align: center;
+    }
+
+    .pz-hero__back {
+      display: inline-flex;
+      align-items: left;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--pz-sub);
+      margin-bottom: 52px;
+      transition: color 0.2s;
+    }
+    .pz-hero__back:hover { color: var(--pz-text); }
+
+    .pz-hero__title {
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 3.5vw, 32px);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--pz-text);
+      margin-bottom: 20px;
+    }
+
+    .pz-hero__meta {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 400;
+      color: var(--pz-muted);
+      margin-bottom: 52px;
+    }
+
+    .pz-hero__cover {
+      background: var(--pz-cover);
+      border-radius: 20px;
+      /* Shaped by the footage (1092x770) rather than cropped to fill. The
+         hero is a full-height flex column, so the cover takes whatever
+         vertical room the title and meta leave; the width then follows from
+         the ratio. align-self stops the default cross-axis stretch, which
+         would otherwise force width to 100% and override aspect-ratio. */
+      flex: 1;
+      min-height: 0;
+      align-self: center;
+      width: auto;
+      max-width: 100%;
+      aspect-ratio: 1092 / 770;
+      /* Only bites if max-width clamps the box off-ratio on a narrow
+         viewport — letterbox there instead of cropping or distorting. */
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Narrow viewports run out of width before height, so the cover stops
+       growing and takes its height from the ratio instead — otherwise flex
+       stretches the box tall while max-width pins it narrow, and contain
+       letterboxes the difference. margin-block keeps it centred in the
+       vertical room that leaves over. */
+    @media (max-width: 860px) {
+      .pz-hero__cover {
+        flex: 0 1 auto;
+        width: 100%;
+        height: auto;
+        margin-block: auto;
+      }
+    }
+
+    /* ─── Eyebrow ─── */
+    .pz-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 200;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--pz-text);
+      margin-bottom: 10px;
+    }
+
+    /* ─── Headings ─── */
+    .pz-h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 800;
+      line-height: 1.25;
+      color: var(--pz-text);
+    }
+
+    /* ─── Body ─── */
+    .pz-body {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--pz-text);
+    }
+    .pz-body p + p { margin-top: 18px; }
+    .pz-body strong { font-weight: 700; }
+    .pz-body em { font-style: italic; font-weight: 700; }
+
+    /* ─── List ─── */
+    .pz-list {
+      padding-left: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .pz-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--pz-text);
+      list-style: disc;
+    }
+    .pz-list li::marker { color: var(--pz-text); }
+    .pz-list li strong { font-weight: 700; }
+
+    /* ─── Two-col ─── */
+    .pz-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+    }
+    @media (max-width: 860px) {
+      .pz-two-col { grid-template-columns: 1fr; gap: 52px; }
+    }
+
+    /* ─── Placeholder box ─── */
+    .pz-ph {
+      background: var(--pz-ph);
+      border-radius: 24px;
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    /* ─── Root cause layout ─── */
+    .pz-rootcause {
+      display: grid;
+      grid-template-columns: 1fr 272px;
+      gap: clamp(40px, 5vw, 72px);
+      align-items: center;
+    }
+    .pz-rootcause__img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    @media (max-width: 860px) {
+      .pz-rootcause { grid-template-columns: 1fr; align-items: start; }
+      .pz-rootcause__img { max-width: 420px; }
+    }
+
+    /* ─── Approach rows ─── */
+    .pz-approach {
+      display: grid;
+      grid-template-columns: 1fr 264px;
+      gap: clamp(32px, 4vw, 56px);
+      align-items: center;
+      padding-top: 64px;
+    }
+    .pz-approach__img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* ─── Conceptualisation: pinned scroll story ─── */
+    /* Everything here is scoped to .is-pinned, which the script adds only on
+       wide viewports with no reduced-motion preference. Unscoped, the three
+       steps stay a normal stacked list — that's the no-JS fallback. */
+    .pz-decisions__intro { padding-top: 88px; }
+    .pz-decisions__deck > :last-child { padding-bottom: 64px; }
+
+    /* Column: intro holds at the top, the deck takes whatever height is left */
+    .pz-decisions.is-pinned .pz-decisions__stage {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--pz-bg);
+      padding: clamp(64px, 9vh, 104px) 0 clamp(28px, 4vh, 56px);
+    }
+
+    .pz-decisions.is-pinned .pz-decisions__stage > .pz-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .pz-decisions.is-pinned .pz-decisions__intro {
+      flex-shrink: 0;
+      padding-top: 0;
+      margin-bottom: clamp(16px, 3vh, 40px);
+    }
+
+    /* One grid cell shared by all three steps, so they overlay each other for
+       the cross-fade, centred in the space below the intro. */
+    .pz-decisions.is-pinned .pz-decisions__deck {
+      display: grid;
+      flex: 1;
+      min-height: 0;
+      align-content: center;
+    }
+
+    .pz-decisions.is-pinned .pz-decisions__step {
+      grid-area: 1 / 1;
+      align-self: center;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    /* The mockup fills its column at natural ratio — see the base
+       .pz-approach__img rule. The cap below is a floor, not a size: 240px is the
+       pinned intro plus the stage's own padding, so it only engages when the
+       image would otherwise slide under the heading or off the bottom.
+       width:auto + max-width:100% renders identically to width:100% until then,
+       but scales proportionally instead of squashing once the cap bites. */
+    .pz-decisions.is-pinned .pz-decisions__img {
+      width: auto;
+      max-width: 100%;
+      max-height: calc(100vh - 240px);
+      justify-self: center;
+    }
+
+
+    .pz-approach__verdict {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .pz-approach__verdict--reject { color: var(--pz-reject); }
+    .pz-approach__verdict--chosen { color: var(--pz-chosen); }
+
+    .pz-approach__title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 700;
+      color: var(--pz-text);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .pz-approach__pro {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      color: var(--pz-text);
+      margin-bottom: 8px;
+    }
+
+    .pz-approach__but {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 800;
+      font-style: italic;
+      color: var(--pz-text);
+      margin-bottom: 10px;
+    }
+
+    .pz-approach__copy {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 400;
+      line-height: 1.75;
+      color: var(--pz-text);
+      max-width: 36em; /* hold the copy to a readable measure */
+    }
+
+    @media (max-width: 860px) {
+      .pz-approach { grid-template-columns: 1fr; align-items: start; }
+      .pz-approach__img { max-width: 420px; }
+    }
+
+    /* ─── Design principle ─── */
+    .pz-principle {
+      margin-top: 32px;
+    }
+    .pz-principle__pre {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 400;
+      color: var(--pz-text);
+      margin-bottom: 6px;
+    }
+    .pz-principle__quote {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(16px, 1.7vw, 20px);
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--pz-text);
+    }
+
+    /* ─── Solution layout ─── */
+    .pz-solution-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(32px, 5vw, 72px);
+      align-items: start;
+      margin-top: 52px;
+    }
+    @media (max-width: 860px) {
+      .pz-solution-body { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Numbered step ─── */
+    .pz-step-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(20px, 2vw, 22px);
+      font-weight: 700;
+      color: var(--pz-text);
+      margin-bottom: 20px;
+    }
+
+    /* ─── Tagline variants ─── */
+    .pz-tagline-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-top: 36px;
+    }
+
+    /* ─── Pull bar (edge case quote) ─── */
+    .pz-pullbar {
+      display: flex;
+      gap: 22px;
+      align-items: stretch;
+      margin: 32px 0;
+    }
+    .pz-pullbar__bar {
+      width: 7px;
+      background: var(--pz-text);
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .pz-pullbar__text {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.5;
+      color: var(--pz-text);
+    }
+
+    /* ─── Flow labels ─── */
+    .pz-flow-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+      margin-top: 16px;
+    }
+    .pz-flow-label {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 400;
+      color: var(--pz-strong);
+    }
+
+    /* ─── Backstory ─── */
+    .pz-backstory-label {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--pz-text);
+      margin-bottom: 24px;
+    }
+
+    /* ─── Metrics ─── */
+    .pz-metrics-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      /* Bottom space comes from the section's padding, not a margin here —
+         a bottom margin collapses out through the section and renders as 0. */
+      margin: 72px 0 0;
+    }
+    @media (max-width: 640px) {
+      .pz-metrics-row { grid-template-columns: 1fr; }
+    }
+
+    .pz-metric {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+    }
+    .pz-metric__num-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .pz-metric__num {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(48px, 5.9vw, 80px);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--pz-green);
+    }
+    .pz-metric__arrow {
+      width: clamp(28px, 3vw, 40px);
+      height: clamp(28px, 3vw, 40px);
+      object-fit: contain;
+    }
+    .pz-metric__label {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.4vw, 16px);
+      font-weight: 400;
+      color: var(--pz-text);
+    }
+
+
+
+    /* ─── Backstory: copy beside the walkthrough ─── */
+    .pz-backstory {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: clamp(32px, 5vw, 72px);
+      align-items: center;
+    }
+    .pz-backstory__media { margin: 0; }
+    @media (max-width: 860px) {
+      .pz-backstory { grid-template-columns: 1fr; align-items: start; }
+    }
+
+    /* ─── Magic-load walkthrough ─── */
+    /* Portrait screen recording, so it's column-width rather than full-bleed
+       like the landscape placeholder it replaced. */
+    .pz-magicload {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 30px;
+    }
+    .pz-magicload__caption {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(13px, 1.3vw, 15px);
+      font-weight: 400;
+      color: var(--pz-muted);
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* ─── Success stamp before / after ─── */
+    .pz-stamp-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-top: 40px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-follower" id="cursorFollower"></div>
+
+  <div class="hero__floor" aria-hidden="true">
+    <div class="hero__floor-grid"></div>
+  </div>
+  <div class="hero__horizon-fade" aria-hidden="true"></div>
+
+  <nav class="nav scrolled" id="nav">
+    <a href="../index.html" class="nav__logo">BN</a>
+    <div class="nav__links">
+      <a href="../index.html#work" class="nav__link">Work</a>
+      <a href="../play.html" class="nav__link">Play</a>
+      <a href="../about.html" class="nav__link">About</a>
+      <button class="theme-toggle" id="themeToggle" type="button" role="switch"
+              aria-checked="false" aria-label="Switch to light theme" title="Light mode">
+        <span class="theme-toggle__knob" aria-hidden="true">
+          <svg class="theme-toggle__glyph theme-toggle__glyph--moon" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.6 9.9A5.9 5.9 0 0 1 6.1 2.4a5.9 5.9 0 1 0 7.5 7.5Z"/>
+          </svg>
+          <svg class="theme-toggle__glyph theme-toggle__glyph--sun" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="3.1"/>
+            <path d="M8 1.2v1.5M8 13.3v1.5M14.8 8h-1.5M2.7 8H1.2M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1M12.8 12.8l-1.1-1.1M4.3 4.3 3.2 3.2"/>
+          </svg>
+        </span>
+      </button>
+      <a href="#" class="nav__cta" target="_blank" rel="noopener">Resume ↗</a>
+    </div>
+  </nav>
+
+  <main class="pz">
+
+    <div class="pz-story">
+
+    <!-- ─── HERO ─── -->
+    <div class="pz-hero-pin">
+    <div class="pz-wrap">
+      <div class="pz-hero">
+        <a href="../index.html" class="pz-hero__back">← Back to Work</a>
+        <h1 class="pz-hero__title">Driving 79% growth in Wallet-on-UPI adoption</h1>
+        <p class="pz-hero__meta">Product: PayZapp by HDFC Bank &nbsp;|&nbsp; Timeline: 2024 &nbsp;|&nbsp; Role: End-to-End Design Lead</p>
+        <video
+          class="pz-hero__cover"
+          src="../Assets/Hero-PPI.mov"
+          autoplay muted loop playsinline
+          preload="auto"
+          aria-label="PayZapp Wallet-on-UPI product interface"
+        ></video>
+      </div>
+    </div>
+    </div><!-- /pz-hero-pin -->
+
+    <div class="pz-panel">
+
+    <!-- ─── OVERVIEW + MY ROLE ─── -->
+    <div class="pz-wrap">
+      <div data-toc="Overview" class="pz-two-col pz-section pz-fade">
+        <div>
+          <h2 class="pz-h2" style="margin-bottom:24px;">Overview</h2>
+          <div class="pz-body">
+            <p>This project focused on increasing the adoption of PayZapp Wallet (Zapp Account) as a payment instrument within UPI transactions.</p>
+            <p>Despite having a high-potential Wallet (Zapp Account), monthly active usage was stagnant at 3% of all UPI transactions.</p>
+            <p>As the design owner for UPI, I redefined the problem from a <strong>"lack of trust" to a "discovery failure"</strong>, leading to a contextual redesign that boosted monthly adoption by 79% without increasing payment drop-offs.</p>
+          </div>
+        </div>
+        <div>
+          <h2 class="pz-h2" style="margin-bottom:24px;">My Role</h2>
+          <div class="pz-body">
+            <p>I was the sole design owner for the UPI payment experience at PayZapp. This project involved me driving the problem framing, leading all design decisions, collaborating with a content designer on messaging, negotiating constraints with the bank's team, and advocating for edge case flows that were initially out of scope.</p>
+            <p><em>The PM owned prioritisation; I owned the design strategy and its rationale end-to-end.</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ─── BUSINESS CONTEXT ─── -->
+    <div class="pz-wrap">
+      <div data-toc="Business Context" class="pz-section pz-fade">
+        <p class="pz-eyebrow">Business Context</p>
+        <h2 class="pz-h2" style="margin-bottom:28px;">Why PPI Wallet for UPI?</h2>
+        <div class="pz-body">
+          <p>For PayZapp, adding Prepaid Zapp Account as a payment instrument on PayZapp was a strategic necessity to:</p>
+          <ul class="pz-list">
+            <li><strong>Reduce bank dependency:</strong> PPI bypasses bank-side server downtimes, improving transaction reliability and reducing failure rates outside PayZapp's control.</li>
+            <li><strong>Unlock interchange revenue:</strong> A 1.1% interchange fee (similar to MDR) applies to PPI-based UPI transactions exceeding ₹2,000 on merchant payments (P2M). This fee is paid by the merchant — meaning every eligible PPI transaction above that threshold generates revenue that a standard Savings Account UPI transaction does not.</li>
+            <li><strong>Platform revenue share:</strong> Zeta earns 10% for every x number of transactions done via Zapp Account.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <section>
+    <!-- ─── DISCOVERY ─── -->
+    <div class="pz-wrap">
+      <div data-toc="Data Insights" class="pz-section pz-fade">
+        <p class="pz-eyebrow">Discovery</p>
+        <h2 class="pz-h2" style="margin-bottom:28px;">Data Insights</h2>
+        <div class="pz-body">
+          <p>We had GTM for Zapp Account as Prepaid payment instrument a while back, although the usage of wallet for UPI payments was low.</p>
+          <p>I was asked to take a fresh look. Initially, the team's hypothesis was that low adoption could be due to lack of trust, usability issues, low relevance or lack of awareness.</p>
+          <p>I initiated a data-deep dive to understand the root cause:</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data screenshot — full width -->
+    <div class="pz-wrap pz-fade" style="padding-bottom:44px;">
+      <img
+        src="../Assets/discovery-data.png"
+        alt="Data analysis showing payment method selection patterns"
+        style="width:100%; display:block; border-radius:8px;"
+      />
+    </div>
+    </section>
+
+
+    <!-- ─── ROOT CAUSE ─── -->
+    <div class="pz-wrap">
+      <div data-toc="The Root Cause" class="pz-section">
+        <div class="pz-rootcause pz-fade">
+          <div>
+            <p class="pz-eyebrow">The Root Cause</p>
+            <h2 class="pz-h2" style="margin-bottom:28px;">Discovery Failure,<br>Not Trust Failure</h2>
+            <div class="pz-body">
+              <p>PayZapp's payment flow showed only the last-used payment method. Since most users had historically paid via Savings Account, the wallet was functionally invisible every single time they paid.</p>
+            </div>
+          </div>
+          <img
+            class="pz-rootcause__img"
+            src="../Assets/PPI-root-cause.png"
+            alt="PayZapp payment flow showing only the last-used payment method"
+          />
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ─── THE PIVOT ─── -->
+    <div class="pz-wrap">
+      <div data-toc="The Pivot" class="pz-section pz-fade">
+        <p class="pz-eyebrow">Problem Statement</p>
+        <h2 class="pz-h2" style="margin-bottom:28px;">The Pivot</h2>
+        <div class="pz-body">
+          <ul class="pz-list" style="margin-top:0;">
+            <li>
+              <strong>From:</strong>
+              <span style="font-weight:400;"> Users aren't using the wallet; we might need more awareness.</span>
+            </li>
+            <li>
+              <strong>To:</strong>
+              <span style="font-weight:400;"> How might we intercept the existing payment habit with a contextual discovery moment that converts savings-account users into wallet users without adding friction?</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ─── CONCEPTUALISATION + THREE APPROACHES ─── -->
+    <!-- Presented as a pinned scroll-scrubbed story: the intro holds at the top
+         of the viewport while the three approaches hand off beneath it.
+         Base markup is a plain heading + stacked list; the pin, the stacking and
+         the cross-fade are all layered on in JS via .is-pinned, so no-JS readers
+         and anyone on prefers-reduced-motion still get all three in full. -->
+    <section data-toc="Conceptualisation" class="pz-decisions">
+      <div class="pz-decisions__stage">
+        <div class="pz-wrap">
+
+          <header class="pz-decisions__intro">
+            <h2 class="pz-h2" style="margin-bottom:20px;">Conceptualisation &amp; Key Decisions</h2>
+            <div class="pz-body">
+              <p>By this point, I was clear that we need to have wallet shown upfront to the users on payment entry page. Considering that, <strong>I evaluated three distinct approaches</strong> to solve for discovery:</p>
+            </div>
+          </header>
+
+          <div class="pz-decisions__deck">
+
+            <!-- Approach 1 -->
+            <article class="pz-approach pz-decisions__step">
+              <div class="pz-decisions__text">
+                <p class="pz-approach__verdict pz-approach__verdict--reject">Rejected ❌</p>
+                <p class="pz-approach__title">1. Make wallet the default</p>
+                <p class="pz-approach__pro">High adoption potential</p>
+                <p class="pz-approach__but">But</p>
+                <p class="pz-approach__copy">Changing a user's payment method without consent is a trust violation in financial UX. In a product where users move real money, broken trust is a catastrophic cost — one that doesn't show up in week-one metrics but bleeds retention for months.</p>
+              </div>
+              <img
+                class="pz-approach__img pz-decisions__img"
+                src="../Assets/PPI-1-Decision.png"
+                alt="Wallet set as the default payment method"
+              />
+            </article>
+
+            <!-- Approach 2 -->
+            <article class="pz-approach pz-decisions__step">
+              <div class="pz-decisions__text">
+                <p class="pz-approach__verdict pz-approach__verdict--reject">Rejected ❌</p>
+                <p class="pz-approach__title">2. Distinct visuals</p>
+                <p class="pz-approach__pro">High Visibility</p>
+                <p class="pz-approach__but">But</p>
+                <p class="pz-approach__copy">Payment flows are speed-sensitive. Users in the act of paying are focused, not browsing. Adding a promotional layer creates cognitive load at exactly the wrong moment — and banner blindness means it would decay quickly.</p>
+              </div>
+              <img
+                class="pz-approach__img pz-decisions__img"
+                src="../Assets/PPI-2-Decision.png"
+                alt="Promotional banner nudging users toward the wallet"
+              />
+            </article>
+
+            <!-- Approach 3 — the conclusion of the story -->
+            <article class="pz-approach pz-decisions__step">
+              <div class="pz-decisions__text">
+                <p class="pz-approach__verdict pz-approach__verdict--chosen">Chosen ✅</p>
+                <p class="pz-approach__title">3. Contextual inline discovery</p>
+                <ul class="pz-list" style="margin-top:12px;">
+                  <li>Visible at decision moment</li>
+                  <li>No disruption to existing flow</li>
+                  <li>Preserved user control</li>
+                </ul>
+                <div class="pz-principle">
+                  <p class="pz-principle__pre">Design principle:</p>
+                  <p class="pz-principle__quote">Don't interrupt the habit. Redirect it.</p>
+                </div>
+              </div>
+              <img
+                class="pz-approach__img pz-decisions__img"
+                src="../Assets/PPI-3-Decision.png"
+                alt="Contextual inline Zapp Account tile in the payment flow"
+              />
+            </article>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ─── SOLUTION ─── -->
+    <div class="pz-wrap">
+      <div data-toc="The Solution" class="pz-section">
+        <div class="pz-fade">
+          <p class="pz-eyebrow">The Solution</p>
+          <h2 class="pz-h2">UPI transaction via wallet experience</h2>
+        </div>
+        <div class="pz-solution-body pz-fade">
+          <div class="pz-ph" style="aspect-ratio:596/720;"></div>
+          <div class="pz-body" style="padding-top:8px;">
+            <p>What it does:</p>
+            <ul class="pz-list">
+              <li>Always visible at the moment of payment — not hidden behind a scroll or a tab</li>
+              <li>Lets users switch in a single tap, preserving the muscle memory of the existing flow</li>
+              <li>Shows available balance inline, making the decision immediate and informed</li>
+              <li>Adds zero friction to users who choose not to switch</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ─── UPI PAYMENT VIA ZAPP ACCOUNT ─── -->
+    <div class="pz-wrap">
+      <div data-toc="Behind the Scenes" class="pz-section pz-fade">
+        <p class="pz-eyebrow">Behind the Scenes of the Experience</p>
+        <h2 class="pz-h2" style="margin-bottom:24px;">UPI Payment via Zapp Account</h2>
+        <div class="pz-body">
+          <p>Now that I solved for the Zapp Account discovery during payment, I thought of picking up the other broken pieces and make the PPI on UPI payment experience smooth and trustworthy for the first time users.</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ─── 1. TAGLINE CONTENT ─── -->
+    <div class="pz-wrap">
+      <div class="pz-section pz-fade">
+        <p class="pz-step-title">1. Tagline content</p>
+        <div class="pz-body" style="margin-bottom:0;">
+          <p>Pin-less payment was genuinely new behaviour for PayZapp users. So to educate them right as to what it means to have Zapp Account payment,</p>
+          <p>I worked with our <strong>content designer, Aishwarya</strong> to define the tagline for the Zapp Account tile. We mapped out the core USPs — speed, security, pin-less — and tested several framings:</p>
+        </div>
+
+        <!-- The three tagline framings we tested -->
+        <img
+          class="pz-tagline-img"
+          src="../Assets/PPI-Tagline.png"
+          alt="Three Zapp Account tile taglines tested: quick, secure &amp; pin-less; pay without pin; fastest payment"
+        />
+      </div>
+    </div>
+
+
+    <!-- ─── 2. PAYMENT PROCESSING ─── -->
+    <div class="pz-wrap">
+      <div class="pz-section pz-fade">
+        <p class="pz-step-title">2. Payment processing</p>
+        <div class="pz-ph" style="height:clamp(120px,14vw,200px); border-radius:20px; margin-top:24px;"></div>
+      </div>
+    </div>
+
+
+    <!-- ─── 3. SUCCESS PAGE STAMP ─── -->
+    <div class="pz-wrap">
+      <div class="pz-section pz-fade">
+        <p class="pz-step-title">3. Success page stamp</p>
+
+        <img
+          class="pz-stamp-img"
+          src="../Assets/PPI-stamp.png"
+          alt="Success page stamp before and after: the original circular seal replaced with the PIN-less &amp; secure badge"
+        />
+      </div>
+    </div>
+
+
+    <section>
+    <!-- ─── EDGE CASE: INSUFFICIENT BALANCE ─── -->
+    <div class="pz-wrap">
+      <div data-toc="Insufficient Balance" class="pz-section pz-fade">
+        <p class="pz-eyebrow">Designing for (not so) Edge Case</p>
+        <h2 class="pz-h2" style="margin-bottom:32px;">Insufficient wallet balance</h2>
+
+        <div class="pz-pullbar">
+          <div class="pz-pullbar__bar"></div>
+          <p class="pz-pullbar__text">First-time failure = lost trust.<br>In fintech, lost trust = lost user.</p>
+        </div>
+
+        <div class="pz-body">
+          <p>The most common failure state was predictable and a core case to increase the adoption.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow placeholder + labels -->
+    <div class="pz-wrap pz-fade" style="padding-bottom:44px;">
+      <div class="pz-ph" style="aspect-ratio:1547/274; border-radius:24px;"></div>
+      <div class="pz-flow-labels">
+        <p class="pz-flow-label">User enters amount</p>
+        <p class="pz-flow-label">Selects Zapp Account</p>
+        <p class="pz-flow-label">Oops! not sufficient funds</p>
+      </div>
+    </div>
+    </section>
+
+
+    <section>
+    <!-- ─── THE BACKSTORY ─── -->
+    <div class="pz-wrap">
+      <div data-toc="The Backstory" class="pz-section pz-fade">
+        <div class="pz-backstory">
+          <div>
+            <p class="pz-backstory-label">The Backstory</p>
+            <div class="pz-body">
+              <p>This particular flow was earlier not in scope when GTM was launched. Hence, a user had to add money separately via Zapp Account homepage which is within PayZapp and then only they can do any payment using Zapp Account.</p>
+              <p>While working again as an initiative to boost growth on PPI payments, I crafted this flow.</p>
+              <p>But again due to system level technical constraints, I was told to craft a flow which helps us move fast to release the updates.</p>
+            </div>
+          </div>
+
+          <!-- Magic-load flow walkthrough -->
+          <figure class="pz-backstory__media">
+            <video
+              class="pz-magicload"
+              src="../Assets/PPI-magicload.mov"
+              autoplay muted loop playsinline controls
+              preload="metadata"
+              aria-label="Walkthrough of the magic-load flow: topping up the Zapp Account inline during payment"
+            ></video>
+            <figcaption class="pz-magicload__caption">add money to wallet in payment path</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    </section>
+
+
+    <!-- ─── METRICS & IMPACT ─── -->
+    <div class="pz-wrap">
+      <div data-toc="Metrics &amp; Impact" class="pz-section pz-fade">
+        <p class="pz-eyebrow">Outcome</p>
+        <h2 class="pz-h2" style="margin-bottom:48px;">Metrics &amp; Impact</h2>
+
+        <div class="pz-metrics-row">
+          <div class="pz-metric">
+            <div class="pz-metric__num-row">
+              <span class="pz-metric__num">79%</span>
+              <img class="pz-metric__arrow" src="../Assets/ArrowCircleUp.svg" alt="up" />
+            </div>
+            <p class="pz-metric__label">monthly transacting wallet users</p>
+          </div>
+          <div class="pz-metric">
+            <div class="pz-metric__num-row">
+              <span class="pz-metric__num">44%</span>
+              <img class="pz-metric__arrow" src="../Assets/ArrowCircleUp.svg" alt="up" />
+            </div>
+            <p class="pz-metric__label">daily transacting wallet users</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    </div><!-- /pz-panel -->
+
+    </div><!-- /pz-story -->
+
+  </main>
+
+  <!-- Fixed: always at viewport bottom, revealed as panel fades away -->
+  <div class="pz-bottom-pin">
+    <div class="pz-wrap">
+      <a href="payzapp-upi.html" class="case-next">
+        <div>
+          <p class="text-label case-next__label">Next project</p>
+          <h3 class="case-next__title">Rebuilding UPI</h3>
+        </div>
+        <span class="case-next__arrow">→</span>
+      </a>
+    </div>
+    <footer class="pz-wrap">
+      <div class="footer">
+        <span class="footer__text">Bhawna Nagpal</span>
+        <span class="footer__text">© 2025</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- DEV: case study editor. Injected only when it would actually activate —
+       the same conditions editor.js itself checks (?editor, or the bn_editor
+       localStorage flag). Visitors never download it: editor.js + editor.css
+       are 62 KB and bind click handlers across the whole page. -->
+  <script>
+    if (localStorage.getItem('bn_editor') === 'true' ||
+        new URLSearchParams(location.search).has('editor')) {
+      const l = document.createElement('link');
+      l.rel = 'stylesheet'; l.href = '../editor.css';
+      document.head.appendChild(l);
+      const s = document.createElement('script');
+      s.src = '../editor.js'; s.async = false;
+      document.body.appendChild(s);
+    }
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+  <script src="../animation.js"></script>
+  <script src="../case-toc.js"></script>
+  <script src="../content.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero entrance — entire hero slides up as one unit
+    gsap.fromTo('.pz-hero',
+      { opacity: 0, y: 48 },
+      { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out', delay: 0.15 }
+    );
+
+    // Hero recedes as the panel climbs over it.
+    //
+    // The pin is sticky, so the hero holds at the top of the viewport while the
+    // panel slides up and occludes it from the bottom. Left alone it stays at
+    // full strength behind the panel, which reads as two pages stacked rather
+    // than one handing off to the next. Scrubbing opacity against the panel's
+    // rise dims the shrinking strip so it's spent before the panel swallows it.
+    //
+    // Applied to .pz-hero-pin, not .pz-hero — the entrance tween above owns
+    // .pz-hero's opacity, and a scrub tween would latch onto whatever value
+    // that animation happened to be at when ScrollTrigger recorded its start.
+    // The scale here is safe for .pz-decisions below: that pin lives inside
+    // .pz-panel, so .pz-hero-pin is its sibling, never its ancestor.
+    gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+      gsap.to('.pz-hero-pin', {
+        opacity: 0,
+        scale: 0.97,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.pz-panel',
+          start: 'top 92%',   // panel has just entered — begin dimming
+          end: 'top 25%',     // spent well before the panel covers it entirely
+          scrub: true,        // direct, not smoothed — the dim tracks the panel with no lag
+          invalidateOnRefresh: true,
+        },
+      });
+    });
+
+    // Reveal the fixed next-project/footer block only once the panel owns the
+    // screen. It lives behind main.pz, which is transparent across the hero, so
+    // before this point its text shows through the hero video. 'top top' is the
+    // first moment the opaque panel spans the whole viewport, which makes the
+    // visibility flip invisible; onLeaveBack hides it again on the way up.
+    {
+      const bottomPin = document.querySelector('.pz-bottom-pin');
+      ScrollTrigger.create({
+        trigger: '.pz-panel',
+        start: 'top top',
+        onEnter:     () => bottomPin.classList.add('is-live'),
+        onLeaveBack: () => bottomPin.classList.remove('is-live'),
+        invalidateOnRefresh: true,
+      });
+    }
+
+    // .pz-decisions is excluded: this fade sets a transform on the element, and a
+    // transformed ancestor breaks position:fixed, which is how the pin works.
+    const sections = document.querySelectorAll(
+      '.pz-panel > .pz-wrap:not(.pz-decisions), .pz-panel > section:not(.pz-decisions)'
+    );
+
+    sections.forEach(el => {
+      gsap.set(el, { opacity: 0, y: 32 });
+
+      // Entry: fade + slide up as section enters viewport
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 88%',
+        onEnter:     () => gsap.to(el, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', overwrite: 'auto' }),
+        onEnterBack: () => gsap.to(el, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', overwrite: 'auto' }),
+      });
+    });
+
+    // Conceptualisation: the three approaches as a pinned, scroll-scrubbed story.
+    //
+    // The section pins, then scroll progress — not elapsed time — drives a
+    // handoff from one approach to the next. Copy and mockup move by different
+    // amounts so the two read as separate planes rather than one sliding block.
+    //
+    // matchMedia gates the whole thing: narrow viewports and anyone asking for
+    // reduced motion keep the plain stacked list, and GSAP reverts every inline
+    // style it set if the viewport crosses back over the breakpoint.
+    gsap.matchMedia().add(
+      '(min-width: 861px) and (prefers-reduced-motion: no-preference)',
+      () => {
+        const section = document.querySelector('.pz-decisions');
+        if (!section) return;
+
+        const stage = section.querySelector('.pz-decisions__stage');
+        const steps = gsap.utils.toArray('.pz-decisions__step', section);
+        const texts = steps.map(s => s.querySelector('.pz-decisions__text'));
+        const imgs  = steps.map(s => s.querySelector('.pz-decisions__img'));
+        if (steps.length < 2) return;
+
+        section.classList.add('is-pinned');
+
+        const HOLD  = 1;    // scroll units a step stays fully settled
+        const SHIFT = 1.1;  // scroll units one handoff takes
+        const LAG   = 0.35; // fraction of SHIFT the incoming step trails by
+
+        // Everything after the first starts just below and a hair small
+        gsap.set(steps.slice(1), { autoAlpha: 0 });
+        gsap.set(texts.slice(1), { y: 28, scale: 0.98 });
+        gsap.set(imgs.slice(1),  { y: 18, scale: 0.985 });
+
+        const tl = gsap.timeline({
+          defaults: { duration: SHIFT, ease: 'power2.inOut' },
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: () => '+=' + window.innerHeight * steps.length,
+            pin: stage,
+            scrub: 0.6,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            // Refresh ahead of the default-priority triggers: this pin inserts
+            // spacing, and anything below it on the page measures against that.
+            refreshPriority: -1,
+          },
+        });
+
+        steps.forEach((step, i) => {
+          if (i === 0) return;
+          const at = 'step' + i;
+
+          tl.addLabel(at, '+=' + HOLD)
+            // Outgoing: copy lifts further than the mockup
+            .to(steps[i - 1], { autoAlpha: 0 }, at)
+            .to(texts[i - 1], { y: -30, scale: 0.98 }, at)
+            .to(imgs[i - 1],  { y: -18, scale: 0.985 }, at)
+            // Incoming: trails the exit so the two never simply crossfade
+            .to(steps[i], { autoAlpha: 1 }, at + '+=' + SHIFT * LAG)
+            .to(texts[i], { y: 0, scale: 1, ease: 'power2.out' }, at + '+=' + SHIFT * LAG)
+            .to(imgs[i],  { y: 0, scale: 1, ease: 'power2.out' }, at + '+=' + SHIFT * LAG);
+        });
+
+        tl.to({}, { duration: HOLD }); // let the chosen approach settle before the pin releases
+
+        return () => section.classList.remove('is-pinned');
+      }
+    );
+
+    // Images carry no intrinsic dimensions, so trigger positions shift as they
+    // decode. Re-measure once everything has landed.
+    window.addEventListener('load', () => ScrollTrigger.refresh());
+  </script>
+
+</body>
+</html>

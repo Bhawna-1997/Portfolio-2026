@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work — Bhawna Nagpal</title>
+  <meta name="description" content="Selected case studies by Bhawna Nagpal, Digital Product Designer." />
+
+  <!-- Theme (must run before paint to avoid a flash) -->
+  <script src="theme.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Display:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-follower" id="cursorFollower"></div>
+
+  <nav class="nav scrolled" id="nav">
+    <a href="index.html" class="nav__logo">BN</a>
+    <div class="nav__links">
+      <a href="index.html#work" class="nav__link">Work</a>
+      <a href="play.html" class="nav__link">Play</a>
+      <a href="about.html" class="nav__link">About</a>
+      <button class="theme-toggle" id="themeToggle" type="button" role="switch"
+              aria-checked="false" aria-label="Switch to light theme" title="Light mode">
+        <span class="theme-toggle__knob" aria-hidden="true">
+          <svg class="theme-toggle__glyph theme-toggle__glyph--moon" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.6 9.9A5.9 5.9 0 0 1 6.1 2.4a5.9 5.9 0 1 0 7.5 7.5Z"/>
+          </svg>
+          <svg class="theme-toggle__glyph theme-toggle__glyph--sun" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="3.1"/>
+            <path d="M8 1.2v1.5M8 13.3v1.5M14.8 8h-1.5M2.7 8H1.2M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1M12.8 12.8l-1.1-1.1M4.3 4.3 3.2 3.2"/>
+          </svg>
+        </span>
+      </button>
+      <a href="#" class="nav__cta" target="_blank" rel="noopener">Resume ↗</a>
+    </div>
+  </nav>
+
+  <main>
+    <header class="page-header container">
+      <p class="text-label page-header__eyebrow">Selected work</p>
+      <h1 class="page-header__title">Work</h1>
+      <p class="page-header__desc">
+        Product design across fintech, healthcare, and digital experiences.
+        Each project is a collaboration between research, systems thinking, and craft.
+      </p>
+    </header>
+
+    <div class="container">
+      <div class="work-grid">
+
+        <!-- Card 1 -->
+        <a href="work/payzapp.html" class="work-card">
+          <img
+            class="work-card__image"
+            src=""
+            alt="PayZapp UPI — project thumbnail"
+          />
+          <div class="work-card__body">
+            <div class="work-card__tags">
+              <span class="work-card__tag">Product Design</span>
+              <span class="work-card__tag">Fintech</span>
+              <span class="work-card__tag">UPI</span>
+            </div>
+            <h2 class="work-card__title">PayZapp UPI</h2>
+            <p class="work-card__desc">
+              Redesigning the UPI experience for HDFC's PayZapp — simplifying complex payment flows for millions of users.
+            </p>
+            <span class="work-card__cta">View Case Study →</span>
+          </div>
+        </a>
+
+        <!-- Card 2 -->
+        <a href="work/healthcare.html" class="work-card">
+          <img
+            class="work-card__image"
+            src=""
+            alt="Healthcare system — project thumbnail"
+          />
+          <div class="work-card__body">
+            <div class="work-card__tags">
+              <span class="work-card__tag">Product Design</span>
+              <span class="work-card__tag">Healthcare</span>
+            </div>
+            <h2 class="work-card__title">Healthcare Systems</h2>
+            <p class="work-card__desc">
+              Designing for clinical workflows — reducing cognitive load for healthcare professionals under high-stakes conditions.
+            </p>
+            <span class="work-card__cta">View Case Study →</span>
+          </div>
+        </a>
+
+        <!-- Card 3 — placeholder -->
+        <a href="#" class="work-card">
+          <img
+            class="work-card__image"
+            src=""
+            alt="Project thumbnail"
+          />
+          <div class="work-card__body">
+            <div class="work-card__tags">
+              <span class="work-card__tag">Product Design</span>
+            </div>
+            <h2 class="work-card__title">Project Title</h2>
+            <p class="work-card__desc">
+              Brief description of the project, the problem it solved, and your role in the design process.
+            </p>
+            <span class="work-card__cta">View Case Study →</span>
+          </div>
+        </a>
+
+        <!-- Card 4 — placeholder -->
+        <a href="#" class="work-card">
+          <img
+            class="work-card__image"
+            src=""
+            alt="Project thumbnail"
+          />
+          <div class="work-card__body">
+            <div class="work-card__tags">
+              <span class="work-card__tag">Product Design</span>
+            </div>
+            <h2 class="work-card__title">Project Title</h2>
+            <p class="work-card__desc">
+              Brief description of the project, the problem it solved, and your role in the design process.
+            </p>
+            <span class="work-card__cta">View Case Study →</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="container">
+    <div class="footer">
+      <span class="footer__text">Bhawna Nagpal</span>
+      <span class="footer__text">© 2025</span>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+  <script src="animation.js"></script>
+  <script src="content.js"></script>
+</body>
+</html>

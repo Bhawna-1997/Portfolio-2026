@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Healthcare Systems — Bhawna Nagpal</title>
+  <meta name="description" content="Healthcare systems design work by Bhawna Nagpal." />
+
+  <!-- Theme (must run before paint to avoid a flash) -->
+  <script src="../theme.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../style.css" />
+
+  <style>
+    html { scroll-behavior: auto; }
+    body { background: var(--bg); }
+
+    /* Page-local palette, themed alongside the global tokens. */
+    :root {
+      --hc-text:  #e8e8e8;
+      --hc-sub:   rgba(232, 232, 232, 0.6);
+      --hc-embed: #f1f1f1;
+    }
+    :root[data-theme="light"] {
+      --hc-text:  #1b1a17;
+      --hc-sub:   rgba(27, 26, 23, 0.6);
+      --hc-embed: #ffffff;
+    }
+
+    .hc {
+      position: relative;
+      z-index: 1001;
+      color: var(--hc-text);
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .hc-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 clamp(24px, 5vw, 80px);
+    }
+
+    .hc-head {
+      padding-top: calc(var(--nav-height) + 28px);
+      padding-bottom: 32px;
+      text-align: center;
+    }
+
+    .hc-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--hc-sub);
+      margin-bottom: 52px;
+      transition: color 0.2s;
+    }
+    .hc-back:hover { color: var(--hc-text); }
+
+    .hc-title {
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 3.5vw, 32px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    /* The embed sits in a fixed-ratio frame so it never collapses to 0 height
+       and never overflows the page on narrow screens. */
+    .hc-embed {
+      background: var(--hc-embed);
+      border-radius: 20px;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      min-height: 600px;
+      margin-bottom: 88px;
+    }
+    .hc-embed iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    @media (max-width: 860px) {
+      .hc-embed { aspect-ratio: 3 / 4; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-follower" id="cursorFollower"></div>
+
+  <nav class="nav scrolled" id="nav">
+    <a href="../index.html" class="nav__logo">BN</a>
+    <div class="nav__links">
+      <a href="../index.html#work" class="nav__link">Work</a>
+      <a href="../play.html" class="nav__link">Play</a>
+      <a href="../about.html" class="nav__link">About</a>
+      <button class="theme-toggle" id="themeToggle" type="button" role="switch"
+              aria-checked="false" aria-label="Switch to light theme" title="Light mode">
+        <span class="theme-toggle__knob" aria-hidden="true">
+          <svg class="theme-toggle__glyph theme-toggle__glyph--moon" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.6 9.9A5.9 5.9 0 0 1 6.1 2.4a5.9 5.9 0 1 0 7.5 7.5Z"/>
+          </svg>
+          <svg class="theme-toggle__glyph theme-toggle__glyph--sun" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="3.1"/>
+            <path d="M8 1.2v1.5M8 13.3v1.5M14.8 8h-1.5M2.7 8H1.2M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1M12.8 12.8l-1.1-1.1M4.3 4.3 3.2 3.2"/>
+          </svg>
+        </span>
+      </button>
+      <a href="#" class="nav__cta" target="_blank" rel="noopener">Resume ↗</a>
+    </div>
+  </nav>
+
+  <main class="hc">
+    <div class="hc-wrap">
+      <header class="hc-head">
+        <a href="../index.html" class="hc-back">← Back to Work</a>
+        <h1 class="hc-title">Healthcare Systems</h1>
+      </header>
+
+      <div class="hc-embed">
+        <iframe
+          src="https://boatneck-angle-936.notion.site/ebd/725662fa1b4d4bbca1760fa11dc719fd"
+          title="Healthcare Systems case study"
+          loading="lazy"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

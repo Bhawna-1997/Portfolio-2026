@@ -1,0 +1,835 @@
+/* ============================================================
+   CASE STUDY EDITOR — DEV ONLY
+   Feature-flagged. Remove this file before going live.
+   ============================================================ */
+
+/* ── Dock (floating bar bottom-right) ── */
+#bn-editor-dock {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 14, 14, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 10px 14px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.bn-ed-badge {
+  font-weight: 600;
+  color: #a78bfa;
+  padding-right: 10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  margin-right: 4px;
+  letter-spacing: 0.02em;
+}
+
+.bn-ed-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.bn-ed-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.bn-ed-save {
+  background: #a78bfa;
+  border-color: #a78bfa;
+  color: #fff;
+  font-weight: 600;
+}
+.bn-ed-save:hover { background: #9061f9; border-color: #9061f9; }
+
+.bn-ed-save[data-linked="true"] {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+.bn-ed-save[data-linked="true"]:hover { background: #16a34a; border-color: #16a34a; }
+
+.bn-ed-reset {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
+}
+.bn-ed-reset:hover { background: rgba(248, 113, 113, 0.1); }
+
+/* ── Dock dropdown menus ── */
+.bn-ed-add { position: relative; }
+
+.bn-ed-add-menu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  background: rgba(18, 18, 18, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 190px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100001;
+}
+.bn-ed-add-menu[hidden] { display: none; }
+
+.bn-ed-add-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #d0d0d0;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  transition: background 0.12s;
+}
+.bn-ed-add-menu button:last-child { border-bottom: none; }
+.bn-ed-add-menu button:hover { background: rgba(167, 139, 250, 0.12); color: #a78bfa; }
+
+/* ── Editable element hover outlines ── */
+.editor-mode [data-eid]:not(.pz-ph):not(img) {
+  outline: 2px dashed transparent;
+  outline-offset: 4px;
+  cursor: text;
+  transition: outline-color 0.15s;
+}
+.editor-mode [data-eid]:not(.pz-ph):not(img):hover {
+  outline-color: rgba(167, 139, 250, 0.45);
+}
+.editor-mode [data-eid].bn-ed-editing {
+  outline-color: #a78bfa !important;
+  outline-style: solid !important;
+}
+[contenteditable]:focus { outline: none; }
+
+/* ── Placeholder boxes (pz-ph, empty imgs) ── */
+.editor-mode .pz-ph,
+.editor-mode img[data-eid] {
+  cursor: pointer;
+  position: relative;
+  transition: box-shadow 0.15s;
+}
+.editor-mode .pz-ph:hover,
+.editor-mode img[data-eid]:hover {
+  box-shadow: 0 0 0 2px #a78bfa;
+}
+.editor-mode .pz-ph:not([data-has-media])::after {
+  content: '＋ Click to add image · GIF · video';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  pointer-events: none;
+}
+/* override: pz-ph::after needs display:flex via a trick */
+.editor-mode .pz-ph:not([data-has-media]) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.editor-mode .pz-ph:not([data-has-media])::after {
+  position: static;
+}
+
+/* ── Between-section insert buttons ── */
+.bn-ed-insert-btn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1.5px dashed rgba(167, 139, 250, 0.0);
+  color: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 10px 0;
+  transition: color 0.2s, border-color 0.2s;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+}
+.editor-mode .bn-ed-insert-btn {
+  border-color: transparent;
+  color: transparent;
+}
+.editor-mode .bn-ed-insert-btn:hover {
+  border-color: rgba(167, 139, 250, 0.5);
+  color: #a78bfa;
+}
+
+/* ── Insert-at-point floating menu ── */
+.bn-ed-insert-menu {
+  position: fixed;
+  background: rgba(18, 18, 18, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 190px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100001;
+}
+.bn-ed-insert-menu[hidden] { display: none; }
+.bn-ed-insert-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #d0d0d0;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  transition: background 0.12s;
+}
+.bn-ed-insert-menu button:last-child { border-bottom: none; }
+.bn-ed-insert-menu button:hover { background: rgba(167, 139, 250, 0.12); color: #a78bfa; }
+
+/* ── Media modal ── */
+#bn-media-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 100002;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+#bn-media-modal.open { display: flex; }
+
+.bn-modal-box {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 28px 32px 24px;
+  width: 500px;
+  max-width: 92vw;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.bn-modal-box h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f0f0f0;
+  margin-bottom: 20px;
+}
+
+.bn-modal-tabs {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+.bn-modal-tabs label {
+  color: #aaa;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bn-modal-tabs input[type="radio"] { accent-color: #a78bfa; }
+
+.bn-modal-url-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.bn-modal-url {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #f0f0f0;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 9px 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.bn-modal-url:focus { border-color: #a78bfa; }
+.bn-modal-url::placeholder { color: rgba(255,255,255,0.25); }
+
+.bn-modal-or { color: #555; font-size: 12px; flex-shrink: 0; }
+
+.bn-modal-upload-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #c0c0c0;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 9px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.bn-modal-upload-btn:hover { background: rgba(255, 255, 255, 0.13); }
+
+.bn-modal-preview {
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.bn-modal-preview:not(:empty) {
+  min-height: 60px;
+  background: rgba(255,255,255,0.04);
+  padding: 8px;
+}
+
+.bn-modal-caption-row { margin-bottom: 20px; }
+.bn-modal-caption {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #f0f0f0;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 9px 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.bn-modal-caption:focus { border-color: #a78bfa; }
+.bn-modal-caption::placeholder { color: rgba(255,255,255,0.25); }
+
+.bn-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.bn-modal-insert {
+  background: #a78bfa !important;
+  border-color: #a78bfa !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+.bn-modal-insert:hover { background: #9061f9 !important; border-color: #9061f9 !important; }
+
+/* ── Format bar (floating above selected text) ── */
+#bn-format-bar {
+  position: fixed;
+  z-index: 100004;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(8, 8, 8, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: 5px 8px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
+  user-select: none;
+}
+#bn-format-bar[hidden] { display: none; }
+
+/* Downward caret pointing at the selection */
+#bn-format-bar::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+}
+#bn-format-bar:not([data-flip="below"])::after {
+  top: 100%;
+  border-top-color: rgba(8, 8, 8, 0.97);
+}
+#bn-format-bar[data-flip="below"]::after {
+  bottom: 100%;
+  border-bottom-color: rgba(8, 8, 8, 0.97);
+}
+
+.bn-fmt-btn {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: #c0c0c0;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  min-width: 28px;
+  padding: 5px 7px;
+  transition: background 0.12s, color 0.12s;
+}
+.bn-fmt-btn:hover        { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.bn-fmt-btn.bn-fmt-active { background: rgba(167, 139, 250, 0.22); color: #a78bfa; }
+
+.bn-fmt-sep {
+  align-self: stretch;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  margin: 2px 5px;
+  width: 1px;
+}
+.bn-fmt-sep:last-of-type {
+  background: rgba(167, 139, 250, 0.45);
+}
+
+/* Font size controls */
+.bn-fmt-sz {
+  -moz-appearance: textfield;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  color: #d0d0d0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  outline: none;
+  padding: 4px 4px;
+  text-align: center;
+  width: 40px;
+}
+.bn-fmt-sz::-webkit-inner-spin-button,
+.bn-fmt-sz::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.bn-fmt-sz:focus { border-color: #a78bfa; color: #fff; }
+
+.bn-fmt-sz-label {
+  color: rgba(255, 255, 255, 0.3);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.bn-fmt-clear { color: #f87171; font-size: 11px; }
+.bn-fmt-clear:hover { background: rgba(248, 113, 113, 0.14) !important; color: #f87171 !important; }
+
+/* ── Floating element toolbar (appears on select) ── */
+#bn-el-toolbar {
+  position: fixed;
+  z-index: 100000;
+  display: flex;
+  gap: 4px;
+  background: rgba(14, 14, 14, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 4px 6px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  transition: opacity 0.1s;
+}
+#bn-el-toolbar[hidden] { display: none; }
+
+.bn-elt-btn {
+  background: none;
+  border: none;
+  border-radius: 5px;
+  color: #d0d0d0;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 9px;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.bn-elt-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.bn-elt-btn[hidden] { display: none; }
+
+.bn-elt-delete { color: #f87171; }
+.bn-elt-delete:hover { background: rgba(248, 113, 113, 0.15) !important; color: #f87171 !important; }
+
+/* ── Save flash ── */
+.bn-ed-flash {
+  position: fixed;
+  bottom: 76px;
+  right: 28px;
+  background: #22c55e;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 100003;
+  pointer-events: none;
+  animation: bn-flash-in 0.2s ease, bn-flash-out 0.3s ease 1.7s forwards;
+}
+@keyframes bn-flash-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bn-flash-out {
+  to { opacity: 0; transform: translateY(-4px); }
+}
+
+/* ── Select mode ── */
+.editor-select-mode [data-drag-wired],
+.editor-select-mode .pz-panel > .pz-wrap,
+.editor-select-mode .pz-panel > section {
+  cursor: crosshair !important;
+  outline: 1px dashed rgba(167,139,250,0.2);
+  outline-offset: 6px;
+}
+.bn-selected {
+  outline: 2px solid #a78bfa !important;
+  outline-offset: 6px;
+}
+.bn-ed-select--on {
+  background: rgba(167,139,250,0.15) !important;
+  border-color: rgba(167,139,250,0.5) !important;
+  color: #a78bfa !important;
+}
+
+/* ── Group floating action bar ── */
+#bn-group-floating {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10,10,10,0.96);
+  border: 1px solid rgba(167,139,250,0.3);
+  border-radius: 14px;
+  padding: 10px 16px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 4px rgba(167,139,250,0.08);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+#bn-group-floating[hidden] { display: none; }
+
+.bn-gf-count {
+  font-size: 12px;
+  color: rgba(167,139,250,0.7);
+  font-weight: 500;
+  padding-right: 8px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  margin-right: 4px;
+}
+
+.bn-gf-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #d0d0d0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  transition: background 0.14s, color 0.14s;
+}
+.bn-gf-btn:hover { background: rgba(255,255,255,0.08); }
+.bn-gf-group {
+  background: #a78bfa;
+  border-color: #a78bfa;
+  color: #fff;
+  font-weight: 600;
+}
+.bn-gf-group:hover { background: #9061f9 !important; }
+
+/* ── Group container ── */
+.pz-group {
+  border-left: 2px solid rgba(167,139,250,0.25);
+  padding-left: 0;
+  margin: 0;
+}
+
+.pz-group__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 8px clamp(24px, 5vw, 80px);
+  margin-bottom: 0;
+}
+
+.pz-group__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(167,139,250,0.5);
+  flex-shrink: 0;
+  margin-left: -4px; /* sits on the border line */
+}
+
+.pz-group__label {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(167,139,250,0.55);
+  outline: none;
+  cursor: text;
+  min-width: 60px;
+}
+.pz-group__label:focus { color: #a78bfa; }
+.pz-group__label:empty::before { content: 'Section name'; opacity: 0.4; }
+
+.pz-group__ungroup {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.2);
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+  margin-left: auto;
+  margin-right: clamp(24px, 5vw, 80px);
+}
+.pz-group__ungroup:hover { background: rgba(248,113,113,0.1); color: #f87171; }
+
+.pz-group__body { margin: 0; }
+
+/* ── Section spacing controls ── */
+.bn-spacing-ctrl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 0;
+  overflow: visible;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.editor-mode .bn-spacing-ctrl { pointer-events: auto; }
+
+.bn-sp-trigger {
+  background: rgba(14, 14, 14, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: transparent;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 1;
+}
+
+/* Only reveal on hover over the section above */
+.editor-mode .pz-panel > .pz-wrap:hover + .bn-spacing-ctrl .bn-sp-trigger,
+.editor-mode .pz-panel > section:hover + .bn-spacing-ctrl .bn-sp-trigger,
+.editor-mode .bn-spacing-ctrl:hover .bn-sp-trigger {
+  color: rgba(167, 139, 250, 0.8);
+  border-color: rgba(167, 139, 250, 0.3);
+  background: rgba(14, 14, 14, 0.95);
+}
+
+.bn-sp-trigger:hover {
+  color: #a78bfa !important;
+  border-color: rgba(167, 139, 250, 0.6) !important;
+}
+
+/* Spacing preset menu */
+.bn-sp-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12, 12, 12, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 6px;
+  display: flex;
+  gap: 4px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  z-index: 101;
+  white-space: nowrap;
+}
+.bn-sp-menu[hidden] { display: none; }
+
+.bn-sp-preset {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #aaa;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  min-width: 44px;
+}
+.bn-sp-preset span {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 400;
+}
+.bn-sp-preset:hover {
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(167, 139, 250, 0.3);
+  color: #a78bfa;
+}
+.bn-sp-preset:hover span { color: rgba(167, 139, 250, 0.6); }
+.bn-sp-preset.active {
+  background: rgba(167, 139, 250, 0.18);
+  border-color: rgba(167, 139, 250, 0.5);
+  color: #a78bfa;
+}
+.bn-sp-preset.active span { color: rgba(167, 139, 250, 0.7); }
+
+/* ── Drag handles ── */
+.pz-panel > .pz-wrap,
+.pz-panel > section,
+.case-body > .case-section,
+.case-body > .case-image {
+  position: relative;
+}
+
+.bn-drag-handle {
+  position: absolute;
+  top: 20px;
+  left: 6px;
+  width: 20px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  cursor: grab;
+  border-radius: 5px;
+  transition: color 0.15s, background 0.15s;
+  user-select: none;
+  z-index: 2;
+}
+
+.editor-mode .pz-panel > .pz-wrap:hover .bn-drag-handle,
+.editor-mode .pz-panel > section:hover .bn-drag-handle,
+.editor-mode .case-body > .case-section:hover .bn-drag-handle,
+.editor-mode .case-body > .case-image:hover .bn-drag-handle {
+  color: rgba(167, 139, 250, 0.45);
+}
+
+.bn-drag-handle:hover { background: rgba(167,139,250,0.1); color: #a78bfa !important; }
+.bn-drag-handle:active { cursor: grabbing; }
+
+/* Section being dragged */
+.bn-dragging {
+  opacity: 0.35;
+  outline: 2px dashed rgba(167, 139, 250, 0.4);
+  outline-offset: 4px;
+}
+
+/* Ghost label shown during drag */
+.bn-drag-ghost {
+  position: fixed;
+  top: -100px;
+  left: -100px;
+  background: rgba(167, 139, 250, 0.9);
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 99999;
+  white-space: nowrap;
+}
+
+/* Drop indicator line */
+#bn-drop-indicator {
+  position: absolute;
+  height: 3px;
+  border-radius: 2px;
+  background: #a78bfa;
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.7);
+  pointer-events: none;
+  z-index: 99998;
+}
+#bn-drop-indicator[hidden] { display: none; }
+/* Arrow nub on left end */
+#bn-drop-indicator::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #a78bfa;
+}
+
+/* ── Newly inserted blocks ── */
+.bn-ed-new-block {
+  border: 1.5px dashed rgba(167, 139, 250, 0.3);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 0 clamp(24px, 5vw, 80px);
+  position: relative;
+}
+.bn-ed-new-block::before {
+  content: 'New block';
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: #a78bfa;
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ── Delete button on new blocks ── */
+.bn-ed-delete {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 6px;
+  color: #f87171;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background 0.15s;
+  z-index: 2;
+}
+.bn-ed-delete:hover { background: rgba(248, 113, 113, 0.28); }

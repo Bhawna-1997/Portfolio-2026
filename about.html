@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Bhawna Nagpal</title>
+  <meta name="description" content="Bhawna Nagpal — Digital Product Designer who vibe codes. Currently at Zeta." />
+
+  <!-- Theme (must run before paint to avoid a flash) -->
+  <script src="theme.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Display:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-follower" id="cursorFollower"></div>
+
+  <nav class="nav scrolled" id="nav">
+    <a href="index.html" class="nav__logo">BN</a>
+    <div class="nav__links">
+      <a href="index.html#work" class="nav__link">Work</a>
+      <a href="play.html" class="nav__link">Play</a>
+      <a href="about.html" class="nav__link">About</a>
+      <button class="theme-toggle" id="themeToggle" type="button" role="switch"
+              aria-checked="false" aria-label="Switch to light theme" title="Light mode">
+        <span class="theme-toggle__knob" aria-hidden="true">
+          <svg class="theme-toggle__glyph theme-toggle__glyph--moon" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.6 9.9A5.9 5.9 0 0 1 6.1 2.4a5.9 5.9 0 1 0 7.5 7.5Z"/>
+          </svg>
+          <svg class="theme-toggle__glyph theme-toggle__glyph--sun" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="3.1"/>
+            <path d="M8 1.2v1.5M8 13.3v1.5M14.8 8h-1.5M2.7 8H1.2M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1M12.8 12.8l-1.1-1.1M4.3 4.3 3.2 3.2"/>
+          </svg>
+        </span>
+      </button>
+      <a href="#" class="nav__cta" target="_blank" rel="noopener">Resume ↗</a>
+    </div>
+  </nav>
+
+  <main>
+    <header class="page-header container">
+      <p class="text-label page-header__eyebrow">The person behind the pixels</p>
+      <h1 class="page-header__title">About</h1>
+    </header>
+
+    <div class="container">
+      <div class="about-layout">
+
+        <!-- Left column: text -->
+        <div class="about-left">
+
+          <p class="about-left__statement">
+            I design products that make complex things feel effortless —
+            and I build them too, because understanding how something works
+            makes it easier to design it well.
+          </p>
+
+          <p class="about-left__body">
+            I'm Bhawna, a Digital Product Designer based in India. I've spent the last few years working at the intersection of UX, systems design, and front-end craft — currently helping shape UPI experiences at Zeta for PayZapp.
+            <br /><br />
+            Before fintech, I designed for healthcare systems, where the stakes were high and clarity wasn't optional. That experience left me with a deep respect for systems thinking and a habit of sweating the details.
+            <br /><br />
+            When I'm not in Figma, I'm probably vibe coding something, tinkering with GSAP, or arguing about type pairings.
+          </p>
+
+          <!-- Timeline -->
+          <div class="about-timeline">
+            <p class="text-label about-timeline__heading">Experience</p>
+
+            <div class="about-timeline__item">
+              <span class="about-timeline__year">2024 —</span>
+              <div>
+                <p class="about-timeline__role">Product Designer</p>
+                <p class="about-timeline__company">Zeta · PayZapp (HDFC)</p>
+              </div>
+            </div>
+
+            <div class="about-timeline__item">
+              <span class="about-timeline__year">2022 — 24</span>
+              <div>
+                <p class="about-timeline__role">UX Designer</p>
+                <p class="about-timeline__company">Healthcare Systems</p>
+              </div>
+            </div>
+
+            <div class="about-timeline__item">
+              <span class="about-timeline__year">2021 — 22</span>
+              <div>
+                <p class="about-timeline__role">UI/UX Designer</p>
+                <p class="about-timeline__company">Earlier role</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="about-skills">
+            <p class="text-label about-timeline__heading" style="margin-bottom: 12px;">Craft</p>
+            <p class="about-skills__list">
+              Product Strategy, User Research, Interaction Design,<br />
+              Design Systems, Prototyping, Figma, HTML, CSS,<br />
+              JavaScript, GSAP, React (basics)
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Right column: visual -->
+        <div class="about-right">
+          <div class="about-right__decoration">
+            <span class="about-right__initials">BN</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Contact strip -->
+    <div class="container">
+      <div class="contact-strip">
+        <h2 class="contact-strip__heading">
+          Let's make something<br /><em>worth remembering.</em>
+        </h2>
+        <div class="contact-strip__links">
+          <span
+            class="contact-strip__email"
+            data-email="bhawnanagpal37@gmail.com"
+            title="Click to copy email"
+          >
+            bhawnanagpal37@gmail.com
+          </span>
+          <div class="contact-strip__social">
+            <a href="#" class="contact-strip__social-link" target="_blank" rel="noopener">LinkedIn ↗</a>
+            <a href="#" class="contact-strip__social-link" target="_blank" rel="noopener">Behance ↗</a>
+            <a href="#" class="contact-strip__social-link" target="_blank" rel="noopener">Twitter ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="container">
+    <div class="footer">
+      <span class="footer__text">Bhawna Nagpal</span>
+      <span class="footer__text">© 2025 · Made with taste</span>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+  <script src="animation.js"></script>
+  <script src="content.js"></script>
+</body>
+</html>

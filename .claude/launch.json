@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-c",
+        "import os,functools,http.server,socketserver\nclass H(http.server.SimpleHTTPRequestHandler):\n    def end_headers(self):\n        self.send_header('Cache-Control','no-store, must-revalidate')\n        super().end_headers()\nport=int(os.environ.get('PORT','4321'))\nsocketserver.TCPServer.allow_reuse_address=True\nprint('serving on',port,flush=True)\nsocketserver.TCPServer(('127.0.0.1',port),H).serve_forever()\n"
+      ],
+      "port": 4321,
+      "autoPort": true
+    }
+  ]
+}
